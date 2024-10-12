@@ -10,7 +10,7 @@ class Scanner:
     def __init__(self, folder):
         self.debug = True
 
-        self.valid_audio_files = [".mp3", ".m4a", ".wav", ".mp4", ".aac"]
+        self.valid_audio_files = [".mp3", ".m4a", ".wav", ".mp4", ".aac", ".mkv", ".mov", "wmv", ".wma"]
         self.tracked_items = []
         self.folder = folder
         if not os.path.exists(folder):
@@ -52,10 +52,16 @@ class Scanner:
     def run_whisper(self, filename):
         print(f"INFO: Running whisper on {filename}")
 
+        output_dir = os.path.dirname(filename)
+
         command = "whisper"
-        command_args = [command, "--model", "medium", "--language", "English", f'{filename}']
+        command_args = [command, "--model", "medium", "--language", "English", "--output_dir", f"{output_dir}", f'{filename}']
 
         result = subprocess.run(command_args)
+        if result is None or result.returncode > 0:
+            print(f"ERROR: whisper failed on {filename}")
+        else:
+            print(f"INFO: whisper complete {filename}")
  
 
     # remove files that have been deleted from the tracked list
@@ -97,13 +103,18 @@ class Scanner:
 
     # process all the tracked files
     def process_tracked_files(self):
-        self.debug_log(f"processing {len(self.tracked_items)} files")
+        total = len(self.tracked_items)
+        self.debug_log(f"processing {total} files")
         for entry in self.tracked_items:
             if not os.path.exists(entry):
                 self.debug_log("ERROR: {entry} does not exist, skipping")
+                total -= 1
                 continue
 
             self.process_tracked_file(entry)
+            total -= 1
+            self.debug_log(f"{total} files remaining in queue")
+
 
 
     # scan for new work
