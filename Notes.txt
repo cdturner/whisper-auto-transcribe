@@ -1,0 +1,8 @@
+to test it
+put an audio file or a video file in the folder ../whisper-test-queue
+make sure ffmpeg is on the path.
+if not, then use brew to install ffmpeg as whisper depends on it.
+
+run with
+python auto-scanner.py /Users/cdturner/Projects/whisper-test-queue
+
